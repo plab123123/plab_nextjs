@@ -199,7 +199,7 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
             <CardTitle className="text-3xl text-slate-800 flex items-center justify-center gap-3">
               <TrendingUp className="w-8 h-8 text-orange-600" />📊 AI 추천 종목 TOP {companies.length}
             </CardTitle>
-            <p className="text-slate-600">당신의 ESG 선호도와 투자 성향을 바탕으로 AI가 분석한 추천 종목입니다</p>
+            <p className="text-slate-600">당신의 ESG 선호도와 투자 성향을 바탕으로 AI가 분석한 추천 종목입니다.</p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -300,7 +300,7 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
           <Card className="border-dashed border-2 border-slate-300">
             <CardContent className="text-center py-12">
               <p className="text-slate-500 text-lg">
-                👆 위의 추천 종목을 클릭하면 상세한 AI 분석 결과를 확인할 수 있습니다
+                👆 위의 추천 종목을 클릭하면 상세한 AI 분석 결과를 확인할 수 있습니다.
               </p>
             </CardContent>
           </Card>
@@ -310,7 +310,7 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
         <Card className="shadow-lg border-0">
           <CardHeader>
             <CardTitle className="text-2xl text-slate-800">🤖 전체 AI 분석 보고서</CardTitle>
-            <p className="text-slate-600">전체 분석 내용을 확인하려면 클릭하세요</p>
+            <p className="text-slate-600">전체 분석 내용을 확인하려면 클릭하세요.</p>
           </CardHeader>
           <CardContent>
             <details className="group">

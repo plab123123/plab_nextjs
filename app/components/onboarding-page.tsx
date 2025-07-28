@@ -37,7 +37,7 @@ const OnboardingPage = ({
             <span className="text-orange-600">ESG AI 주식 추천</span>
           </h1>
           <p className="text-lg text-slate-600">
-            당신의 가치관과 투자 성향을 분석하여 최적의 ESG 주식을 추천해드립니다
+            당신의 가치관과 투자 성향을 분석하여 최적의 ESG 주식을 추천해드립니다!
           </p>
         </div>
 
@@ -46,7 +46,7 @@ const OnboardingPage = ({
           <CardHeader className="pb-6">
             <CardTitle className="text-2xl text-slate-800">ESG 우선순위 설정</CardTitle>
             <p className="text-slate-600">
-              ESG 각각의 항목에 대해 본인의 중요도를 설정해 주세요. 총합이 100%가 되도록 설정됩니다.
+              ESG 각각의 항목에 대해 본인의 중요도를 설정해 주세요. 총 합이 100%가 되도록 설정됩니다.
             </p>
           </CardHeader>
           <CardContent className="space-y-8">
@@ -107,7 +107,7 @@ const OnboardingPage = ({
             {/* 총합 표시 */}
             <div className="bg-slate-50 rounded-lg p-4 border-2 border-slate-200">
               <div className="flex items-center justify-between">
-                <span className="text-lg font-medium text-slate-700">총합</span>
+                <span className="text-lg font-medium text-slate-700">총 합</span>
                 <span className="text-2xl font-bold text-slate-800">
                   {esgValues.environment + esgValues.social + esgValues.governance}%
                 </span>
