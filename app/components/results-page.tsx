@@ -30,6 +30,10 @@ interface ResultsPageProps {
   onBack: () => void
 }
 
+const handleReset = () => {
+  window.location.reload()
+}
+
 const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps) => {
   const [selectedStock, setSelectedStock] = useState<number | null>(null)
 
@@ -37,6 +41,13 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
   const parseApiResponse = (response: string) => {
     const companies: Company[] = []
     const newsLinks: NewsLink[] = []
+    let esgSummary = ""
+
+    const esgSummaryMatch = response.match(/📌 \[ESG 요약 분석\]\n([\s\S]*?)\n+(💡|\📊|📰|$)/)
+
+    if (esgSummaryMatch) {
+      esgSummary = esgSummaryMatch[1].trim()
+    }
 
     // 기업 정보 파싱 - 개선된 정규식
     const companiesSection = response.split("💡 [추천 투자 기업]")[1]?.split("📰 [관련 기사 목록]")?.[0]
@@ -109,10 +120,20 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
     }
 
 
-    return { companies, newsLinks }
+    return { companies, newsLinks, esgSummary }
   }
 
-  const { companies, newsLinks } = parseApiResponse(apiResponse)
+  const { companies, newsLinks, esgSummary } = parseApiResponse(apiResponse)
+
+  const isEmptyResult = () => {
+    return (
+      apiResponse.includes("사용자 요청 없음") ||
+      apiResponse.includes("요약 분석 없음") ||
+      apiResponse.includes("투자 추천 없음") ||
+      apiResponse.includes("관련 기사 없음") ||
+      (companies.length === 0 && esgSummary === "" && newsLinks.length === 0)
+    )
+  }  
 
   const getESGIcon = (category: string) => {
     switch (category) {
@@ -163,12 +184,33 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
 
   return (
     <div className="py-8 px-4">
+      {isEmptyResult() ? (
+        <Card className="shadow-lg border-0">
+        <CardHeader className="text-center pb-6">
+          <CardTitle className="text-3xl text-slate-800 flex items-center justify-center gap-3">
+            <TrendingUp className="w-8 h-8 text-orange-600" />
+            분석 결과를 제공해 드리지 못했어요 😢 
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-6">
+          <p className="text-slate-600 text-lg leading-relaxed">
+            입력하신 조건은 정상적이지만,<br />
+            현재 분석 시스템에서 유의미한 결과를 생성하지 못했습니다.
+            <br />
+            잠시 후 다시 시도해 주시거나, 동일한 조건으로 재분석해 주세요.
+          </p>
+          <Button size="lg" className="px-8 py-3" onClick={onBack}>
+            🔁 이전 화면으로 돌아가기
+          </Button>
+        </CardContent>
+      </Card>
+      ) : (
       <div className="max-w-6xl mx-auto space-y-8">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={handleReset}
             className="flex items-center gap-2 text-slate-600 hover:text-slate-800"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -205,6 +247,17 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
           </CardContent>
         </Card>
 
+        {/* ESG 요약 분석 */}
+        {esgSummary && (
+          <Card className="shadow-lg border-0">
+            <CardHeader>
+              <CardTitle className="text-2xl text-slate-800 flex items-center gap-2">📌 ESG 요약 분석</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-700 whitespace-pre-line">{esgSummary}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 상단: 추천 종목 리스트 */}
         <Card className="shadow-lg border-0">
@@ -361,11 +414,13 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
           <Button size="lg" className="px-8 py-3 bg-orange-600 hover:bg-orange-700">
             📄 분석 보고서 저장
           </Button>
-          <Button variant="outline" size="lg" className="px-8 py-3 bg-transparent" onClick={onBack}>
+          <Button variant="outline" size="lg" className="px-8 py-3 bg-transparent" onClick={handleReset}>
             🔄 다른 조건으로 분석
           </Button>
         </div>
       </div>
+      )
+    }
     </div>
   )
 }

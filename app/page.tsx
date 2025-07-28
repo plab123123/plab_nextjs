@@ -15,29 +15,76 @@ export default function ESGOnboarding() {
   const [isLoading, setIsLoading] = useState(false)
   const [apiResponse, setApiResponse] = useState("")
 
-  const handleSliderChange = (category: "environment" | "social" | "governance", newValue: number) => {
-    const otherCategories = Object.keys(esgValues).filter((key) => key !== category) as Array<keyof typeof esgValues>
-    const remainingValue = 100 - newValue
-    const currentOtherTotal = esgValues[otherCategories[0]] + esgValues[otherCategories[1]]
+  const handleSliderChange = (
+    category: "environment" | "social" | "governance",
+    newValue: number
+  ) => {
+    const oldValue = esgValues[category]
+    const delta = newValue - oldValue
+    const otherCategories = Object.keys(esgValues).filter(
+      (key) => key !== category
+    ) as Array<keyof typeof esgValues>
 
-    if (currentOtherTotal === 0) {
-      setEsgValues({
-        ...esgValues,
-        [category]: newValue,
-        [otherCategories[0]]: remainingValue / 2,
-        [otherCategories[1]]: remainingValue / 2,
-      })
+    let newEsgValues = { ...esgValues }
+
+    if (delta === 0) return 
+
+    if (delta > 0) {
+      let remainingToReduce = delta
+
+      const othersSorted = otherCategories.sort(
+        (a, b) => esgValues[b] - esgValues[a]
+      )
+
+      for (const cat of othersSorted) {
+        const canReduce = newEsgValues[cat] 
+        const reduceAmount = Math.min(canReduce, remainingToReduce)
+        newEsgValues[cat] -= reduceAmount
+        remainingToReduce -= reduceAmount
+
+        if (remainingToReduce <= 0) break
+      }
+
+      if (remainingToReduce > 0) {
+        newValue -= remainingToReduce
+      }
+
+      newEsgValues[category] = newValue
     } else {
-      const ratio1 = esgValues[otherCategories[0]] / currentOtherTotal
-      const ratio2 = esgValues[otherCategories[1]] / currentOtherTotal
+      // 내리는 경우: 남은 두 항목에 비율대로 나눠 더함
+      const increaseAmount = -delta
+      const otherSum = otherCategories.reduce(
+        (sum, cat) => sum + newEsgValues[cat],
+        0
+      )
 
-      setEsgValues({
-        ...esgValues,
-        [category]: newValue,
-        [otherCategories[0]]: Math.round(remainingValue * ratio1),
-        [otherCategories[1]]: Math.round(remainingValue * ratio2),
-      })
+      if (otherSum === 0) {
+        otherCategories.forEach((cat) => {
+          newEsgValues[cat] += Math.round(increaseAmount / 2)
+        })
+      } else {
+        otherCategories.forEach((cat) => {
+          const ratio = newEsgValues[cat] / otherSum
+          newEsgValues[cat] += Math.round(increaseAmount * ratio)
+        })
+      }
+
+      newEsgValues[category] = newValue
     }
+
+    // 총합이 100이 아니면 가장 큰 값에 오차 보정
+    const total =
+      newEsgValues.environment + newEsgValues.social + newEsgValues.governance
+    if (total !== 100) {
+      const maxKey = (Object.keys(newEsgValues) as Array<
+        keyof typeof newEsgValues
+      >).reduce((a, b) =>
+        newEsgValues[a] > newEsgValues[b] ? a : b
+      )
+      newEsgValues[maxKey] += 100 - total
+    }
+
+    setEsgValues(newEsgValues)
   }
 
   const handleSubmit = async () => {
@@ -57,10 +104,10 @@ export default function ESGOnboarding() {
     try {
       setIsLoading(true)
 
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
+      const response = await fetch("/api/analyze", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
       })
