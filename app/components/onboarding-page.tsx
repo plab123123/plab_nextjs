@@ -87,6 +87,7 @@ const OnboardingPage = ({
               </p>
             </CardHeader>
             <CardContent className="space-y-8">
+
               {/* 환경 (Environment) */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -100,7 +101,7 @@ const OnboardingPage = ({
                   value={[esgValues.environment]}
                   onValueChange={(value) => handleSliderChange("environment", value[0])}
                   max={100}
-                  step={1}
+                  step={5}
                   className="w-full"
                 />
               </div>
@@ -118,7 +119,7 @@ const OnboardingPage = ({
                   value={[esgValues.social]}
                   onValueChange={(value) => handleSliderChange("social", value[0])}
                   max={100}
-                  step={1}
+                  step={5}
                   className="w-full"
                 />
               </div>
@@ -136,7 +137,7 @@ const OnboardingPage = ({
                   value={[esgValues.governance]}
                   onValueChange={(value) => handleSliderChange("governance", value[0])}
                   max={100}
-                  step={1}
+                  step={5}
                   className="w-full"
                 />
               </div>

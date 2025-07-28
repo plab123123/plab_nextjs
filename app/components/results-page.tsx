@@ -16,6 +16,7 @@ interface Company {
   name: string
   reason: string
   financialData?: string
+  financialSummary?: string
 }
 
 interface NewsLink {
@@ -61,10 +62,21 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
 
         // 재무 데이터 추출 (있는 경우)
         let financialData = ""
+        let financialSummary = ""
+
         if (reasonEnd !== -1) {
           const financialSection = block.substring(reasonEnd)
           financialData = financialSection.replace(/📊 최근 주요 재무 지표:\s*/, "").trim()
+
+          // 📈 재무 요약 진단 분리
+          const summaryMatch = financialData.match(/📈 재무 요약 진단:(.+)$/s)
+          if (summaryMatch) {
+            financialSummary = summaryMatch[1].trim()
+            // 진단 문구는 financialData에서 제거
+            financialData = financialData.replace(/📈 재무 요약 진단:.+$/s, "").trim()
+          }
         }
+
 
         if (name && reason) {
           companies.push({
@@ -72,6 +84,7 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
             name: name,
             reason: reason,
             financialData: financialData || undefined,
+            financialSummary: financialSummary || undefined
           })
         }
       })
@@ -239,7 +252,7 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
         </Card>
 
         {/* 하단: 선택된 종목의 상세 정보 */}
-        {selectedStock && selectedStock <= companies.length && (
+        {selectedStock !== null && selectedStock <= companies.length && (
           <Card className="shadow-lg border-0 border-t-4 border-t-orange-500">
             <CardHeader>
               <CardTitle className="text-2xl text-slate-800 flex items-center gap-3">
@@ -250,24 +263,36 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* 추천 사유 */}
-              <div className="bg-slate-50 rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">🤖 AI 추천 사유</h4>
-                <p className="text-slate-700 leading-relaxed text-lg whitespace-pre-line">
-                  {companies[selectedStock - 1].reason}
+            {/* 추천 사유 */}
+            <div className="bg-slate-50 rounded-lg p-6 border-2 border-orange-500">
+              <h4 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">🤖 AI 추천 사유</h4>
+              <p className="text-slate-700 leading-relaxed text-lg whitespace-pre-line">
+                {companies[selectedStock - 1].reason}
+              </p>
+            </div>
+
+            {/* 재무 데이터 (있는 경우) */}
+            {companies[selectedStock - 1].financialData && (
+              <div className="bg-blue-50 rounded-lg p-6">
+                <h4 className="text-lg font-bold text-slate-700 mb-2 flex items-center gap-2">📊 재무 정보</h4>
+                <pre className="text-slate-600 leading-relaxed text-sm whitespace-pre-line font-mono">
+                {companies[selectedStock - 1].financialData?.replace(/[-\s]*$/g, "").trim() || ""}
+              </pre>
+              </div>
+            )}
+
+            {/* 재무 요약 진단 (있는 경우) */}
+            {companies[selectedStock - 1].financialSummary && (
+              <div className="bg-blue-50 rounded-lg p-6 mt-4">
+                <h4 className="text-xl font-bold text-slate-700 mb-2 flex items-center gap-2">
+                  📈 재무 요약 진단
+                </h4>
+                <p className="text-slate-700 text-lg leading-relaxed whitespace-pre-line">
+                  {companies[selectedStock - 1].financialSummary}
                 </p>
               </div>
-
-              {/* 재무 데이터 (있는 경우) */}
-              {companies[selectedStock - 1].financialData && (
-                <div className="bg-blue-50 rounded-lg p-6">
-                  <h4 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">📊 재무 정보</h4>
-                  <pre className="text-slate-700 leading-relaxed text-sm whitespace-pre-line font-mono">
-                    {companies[selectedStock - 1].financialData}
-                  </pre>
-                </div>
-              )}
-            </CardContent>
+            )}
+          </CardContent>
           </Card>
         )}
 
