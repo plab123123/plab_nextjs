@@ -80,21 +80,21 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
     // 뉴스 링크 파싱
     const newsSection = response.split("📰 [관련 기사 목록]")[1]
     if (newsSection) {
-      const linkMatches = newsSection.match(/\d+\.\s📄\s(.+?)\n\s🔗\s(.+?)(?=\n|$)/g)
-      if (linkMatches) {
-        linkMatches.forEach((match) => {
-          const titleMatch = match.match(/📄\s(.+?)\n/)
-          const urlMatch = match.match(/🔗\s(.+?)(?=\n|$)/)
+      const newsItems = newsSection.trim().split(/\n(?=\d+\.\s📄)/).filter(Boolean)
 
-          if (titleMatch && urlMatch) {
-            newsLinks.push({
-              title: titleMatch[1].trim(),
-              url: urlMatch[1].trim(),
-            })
-          }
-        })
-      }
+      newsItems.forEach((item) => {
+        const titleMatch = item.match(/📄\s(.+?)(?:\n|$)/)
+        const urlMatch = item.match(/🔗\s(https?:\/\/[^\s]+)/)
+
+        if (titleMatch && urlMatch) {
+          newsLinks.push({
+            title: titleMatch[1].trim(),
+            url: urlMatch[1].trim(),
+          })
+        }
+      })
     }
+
 
     return { companies, newsLinks }
   }
@@ -267,30 +267,6 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
                   </pre>
                 </div>
               )}
-
-              {/* 관련 뉴스 링크 */}
-              {newsLinks.length > 0 && (
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">📰 관련 기사</h4>
-                  <div className="space-y-3">
-                    {newsLinks.map((link, index) => (
-                      <a
-                        key={index}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-3 p-4 border border-slate-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
-                      >
-                        <ExternalLink className="w-4 h-4 text-orange-600 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="text-slate-800 font-medium">{link.title}</p>
-                          <p className="text-sm text-slate-500 mt-1 break-all">{link.url}</p>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         )}
@@ -305,6 +281,34 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
             </CardContent>
           </Card>
         )}
+
+        {/* 뉴스 기사 모음 - 전체 보고서 위에 따로 표시 */}
+        {newsLinks.length > 0 && (
+          <Card className="shadow-lg border-0">
+            <CardHeader>
+              <CardTitle className="text-2xl text-slate-800 flex items-center gap-2">📰 관련 기사 모음</CardTitle>
+              <p className="text-slate-600">AI 추천과 관련된 주요 기사 링크입니다.</p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {newsLinks.map((link, index) => (
+                <a
+                  key={index}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 p-4 border border-slate-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4 text-orange-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <p className="text-slate-800 font-medium">{link.title}</p>
+                    <p className="text-sm text-slate-500 mt-1 break-all">{link.url}</p>
+                  </div>
+                </a>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
 
         {/* 전체 AI 분석 결과 (접을 수 있는 형태) */}
         <Card className="shadow-lg border-0">
