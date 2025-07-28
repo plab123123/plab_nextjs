@@ -39,7 +39,7 @@ const ResultsPage = ({ userPreferences, apiResponse, onBack }: ResultsPageProps)
     const newsLinks: NewsLink[] = []
 
     // 기업 정보 파싱 - 개선된 정규식
-    const companiesSection = response.split("💡 [추천 투자 기업]")[1]?.split("📰 [관련 기사 목록]")[0]
+    const companiesSection = response.split("💡 [추천 투자 기업]")[1]?.split("📰 [관련 기사 목록]")?.[0]
 
     if (companiesSection) {
       // 각 기업을 개별적으로 파싱
