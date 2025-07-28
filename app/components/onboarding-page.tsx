@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { XCircle } from "lucide-react"
 
 interface OnboardingPageProps {
   esgValues: { environment: number; social: number; governance: number }
@@ -19,6 +20,7 @@ interface OnboardingPageProps {
 
 const OnboardingPage = ({
   esgValues,
+  setEsgValues,
   investmentStyle,
   setInvestmentStyle,
   onSubmit,
@@ -26,6 +28,16 @@ const OnboardingPage = ({
   isLoading,
   handleSliderChange,
 }: OnboardingPageProps) => {
+  const total = esgValues.environment + esgValues.social + esgValues.governance
+
+  const limitedHandleSliderChange = (key: "environment" | "social" | "governance", value: number) => {
+    handleSliderChange(key, value)
+  }
+
+  const handleReset = () => {
+    setEsgValues({ environment: 33, social: 33, governance: 34 })
+  }
+
   return (
     <>
       {isLoading && (
@@ -52,13 +64,10 @@ const OnboardingPage = ({
               ></path>
             </svg>
             <p className="text-lg text-slate-700 text-center leading-relaxed">
-              입력하신{" "}
-              <strong className="font-semibold text-slate-800">투자 성향</strong>과{" "}
-              <strong className="font-semibold text-slate-800">ESG 우선순위</strong>를 반영해 분석 중입니다.
+              입력하신 <strong className="font-semibold text-slate-800">투자 성향</strong>과 
+              <strong className="font-semibold text-slate-800">ESG 우선순위</strong>를 반영해 AI가 분석 중입니다.  
               <br />
-              곧{" "}
-              <strong className="font-semibold text-slate-800">AI 기반 맞춤 기업</strong>
-              을 추천해드릴게요 🙌
+              <strong className="text-orange-600">최대 1분 정도</strong> 소요될 수 있어요! 잠시만 기다려 주세요🙌
             </p>
           </div>
         </div>
@@ -80,15 +89,24 @@ const OnboardingPage = ({
 
           {/* ESG 우선순위 슬라이더 */}
           <Card className="shadow-lg border-0">
-            <CardHeader className="pb-6">
+            <CardHeader className="pb-6 relative">
               <CardTitle className="text-2xl text-slate-800">ESG 우선순위 설정</CardTitle>
               <p className="text-slate-600">
                 ESG 각각의 항목에 대해 본인의 중요도를 설정해 주세요. 총합이 100%가 되도록 설정됩니다.
               </p>
+              <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 right-4 bg-orange-50 text-slate-400 hover:bg-orange-300"
+              onClick={handleReset}
+            >
+              <XCircle className="w-4 h-4 mr-1" />
+              초기화
+            </Button>
             </CardHeader>
-            <CardContent className="space-y-8">
 
-              {/* 환경 (Environment) */}
+            <CardContent className="space-y-8">
+              {/* 환경 */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -99,14 +117,14 @@ const OnboardingPage = ({
                 </div>
                 <Slider
                   value={[esgValues.environment]}
-                  onValueChange={(value) => handleSliderChange("environment", value[0])}
+                  onValueChange={(value) => limitedHandleSliderChange("environment", value[0])}
                   max={100}
                   step={5}
                   className="w-full"
                 />
               </div>
 
-              {/* 사회 (Social) */}
+              {/* 사회 */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -117,14 +135,14 @@ const OnboardingPage = ({
                 </div>
                 <Slider
                   value={[esgValues.social]}
-                  onValueChange={(value) => handleSliderChange("social", value[0])}
+                  onValueChange={(value) => limitedHandleSliderChange("social", value[0])}
                   max={100}
                   step={5}
                   className="w-full"
                 />
               </div>
 
-              {/* 지배구조 (Governance) */}
+              {/* 지배구조 */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -135,7 +153,7 @@ const OnboardingPage = ({
                 </div>
                 <Slider
                   value={[esgValues.governance]}
-                  onValueChange={(value) => handleSliderChange("governance", value[0])}
+                  onValueChange={(value) => limitedHandleSliderChange("governance", value[0])}
                   max={100}
                   step={5}
                   className="w-full"
@@ -146,10 +164,11 @@ const OnboardingPage = ({
               <div className="bg-slate-50 rounded-lg p-4 border-2 border-slate-200">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-medium text-slate-700">총합</span>
-                  <span className="text-2xl font-bold text-slate-800">
-                    {esgValues.environment + esgValues.social + esgValues.governance}%
-                  </span>
+                  <span className="text-2xl font-bold text-slate-800">{total}%</span>
                 </div>
+                {total !== 100 && (
+                  <p className="text-red-500 text-sm pt-2">총합이 반드시 100%가 되어야 합니다.</p>
+                )}
               </div>
             </CardContent>
           </Card>
